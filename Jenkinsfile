@@ -15,9 +15,10 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
+        stage('Deploy to EC2') {
             steps {
-                sh 'echo Deploying to AWS...'
+                sh 'scp -i Test.pem app ec2-user@43.205.206.144:/home/ec2-user/'
+                sh 'ssh ec2-user@43.205.206.144 "docker run -d -p 80:80 my-app"'
             }
         }
 
