@@ -38,23 +38,14 @@ pipeline {
             }
         }
 
-        stage('Copy to EC2') {
-            steps {
-                sh '''
-                scp -i $KEY my-app.tar ec2-user@$EC2_IP:/home/ec2-user/
-                '''
-            }
-        }
 
         stage('Deploy on EC2') {
             steps {
                 sh '''
-                ssh -T -i $KEY ec2-user@$EC2_IP << 'EOF'
-                docker load < my-app.tar
-                docker stop my-app || true
-                docker rm my-app || true
-                docker run -d -p 80:3000 --name my-app my-app
-                EOF
+                scp -i $KEY deploy.sh ec2-user@$EC2_IP:/home/ec2-user/
+                scp -i $KEY my-app.tar ec2-user@$EC2_IP:/home/ec2-user/
+
+                ssh -i $KEY ec2-user@$EC2_IP "chmod +x deploy.sh && ./deploy.sh"
                 '''
             }
         }
