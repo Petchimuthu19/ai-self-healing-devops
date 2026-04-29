@@ -1,5 +1,13 @@
 pipeline {
     agent any
+    stages {
+        stage('Test') {
+            steps {
+                sh 'echo SUCCESS'
+            }
+        }
+    }
+}
 
     environment {
         EC2_IP = "52.66.209.208"
