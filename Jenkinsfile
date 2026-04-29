@@ -13,6 +13,13 @@ pipeline {
                 git 'https://github.com/Petchimuthu19/Ai-Project.git'
             }
         }
+     
+        stage('Debug') {
+            steps {
+                sh 'pwd'
+                sh 'ls -l'
+            }
+        }
 
         stage('Build Docker Image') {
             steps {
