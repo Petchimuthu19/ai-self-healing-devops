@@ -49,7 +49,7 @@ pipeline {
         stage('Deploy on EC2') {
             steps {
                 sh '''
-                ssh -i $KEY ec2-user@$EC2_IP << EOF
+                ssh -T -i $KEY ec2-user@$EC2_IP << 'EOF'
                 docker load < my-app.tar
                 docker stop my-app || true
                 docker rm my-app || true
