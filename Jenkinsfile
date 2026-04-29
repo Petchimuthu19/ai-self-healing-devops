@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    environment {
+        EC2_IP = "52.66.209.208"
+        KEY = "Test.pem"
+    }
+
     stages {
 
         stage('Checkout') {
@@ -9,20 +14,40 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Build Docker Image') {
             steps {
                 sh 'docker build -t my-app .'
             }
         }
 
-        stage('Deploy to EC2') {
+        stage('Save Docker Image') {
             steps {
-                sh 'scp -i Test.pem app ec2-user@43.205.206.144:/home/ec2-user/'
-                sh 'ssh ec2-user@43.205.206.144 "docker run -d -p 80:80 my-app"'
+                sh 'docker save my-app > my-app.tar'
             }
         }
 
-        // 🔥 YOUR AI INTEGRATION
+        stage('Copy to EC2') {
+            steps {
+                sh '''
+                scp -i $KEY my-app.tar ec2-user@$EC2_IP:/home/ec2-user/
+                '''
+            }
+        }
+
+        stage('Deploy on EC2') {
+            steps {
+                sh '''
+                ssh -i $KEY ec2-user@$EC2_IP << EOF
+                docker load < my-app.tar
+                docker stop my-app || true
+                docker rm my-app || true
+                docker run -d -p 80:3000 --name my-app my-app
+                EOF
+                '''
+            }
+        }
+
+        // 🔥 AI Integration
         stage('AI Analysis (Self-Healing)') {
             steps {
                 sh 'python3 ai_agent.py'
