@@ -1,1 +1,3 @@
-Test.pem
+*.pem
+*.tar
+__pycache__/

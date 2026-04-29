@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         EC2_IP = "52.66.209.208"
-        KEY = "Test.pem"
+        KEY = "/var/lib/jenkins/Test.pem"
     }
 
     stages {
