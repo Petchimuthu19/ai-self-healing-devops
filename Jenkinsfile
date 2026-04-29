@@ -23,7 +23,12 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t my-app .'
+                sh '''
+                export DOCKER_BUILDKIT=0
+                pwd
+                ls -l
+                docker build -t my-app .
+                '''
             }
         }
 
