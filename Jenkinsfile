@@ -10,7 +10,7 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                git branch: 'main', 'https://github.com/Petchimuthu19/Ai-Project.git'
+                git branch: 'main', url: 'https://github.com/Petchimuthu19/Ai-Project.git'
             }
         }
      
