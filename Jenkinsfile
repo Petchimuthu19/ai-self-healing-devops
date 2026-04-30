@@ -46,20 +46,19 @@ pipeline {
         stage('Deploy on EC2 (USE GITHUB SCRIPT)') {
             steps {
                 sshagent(['ec2-key']) {
-                   sh '''
-                   # Copy deploy.sh from Jenkins workspace to EC2
-                   scp -o StrictHostKeyChecking=no deploy.sh ec2-user@$EC2_IP:/home/ec2-user/
 
-                   # Execute script on EC2
-                   ssh -o StrictHostKeyChecking=no ec2-user@$EC2_IP "
-                        chmod +x /home/ec2-user/deploy.sh &&
-                        /home/ec2-user/deploy.sh
+                sh '''
+                echo "📤 Copying deploy.sh to EC2..."
 
-                   "
-                   '''
-                }
+                scp -o StrictHostKeyChecking=no deploy.sh ec2-user@$EC2_IP:/home/ec2-user/
+
+                echo "🚀 Running deploy.sh on EC2..."
+
+                ssh -o StrictHostKeyChecking=no ec2-user@$EC2_IP 'bash /home/ec2-user/deploy.sh'
+                '''
+              }
             }
-        }
+        }  
 
         stage('AI Self-Healing') {
             steps {
