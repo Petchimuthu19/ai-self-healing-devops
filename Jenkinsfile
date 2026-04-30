@@ -54,6 +54,7 @@ pipeline {
                    ssh -o StrictHostKeyChecking=no ec2-user@$EC2_IP "
                         chmod +x /home/ec2-user/deploy.sh &&
                         /home/ec2-user/deploy.sh
+
                    "
                    '''
                 }
