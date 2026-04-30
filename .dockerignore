@@ -13,3 +13,4 @@ build
 *.jpg
 *.png
 .env
+models
