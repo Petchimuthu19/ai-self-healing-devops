@@ -24,12 +24,24 @@ pipeline {
 
         stage('Push to Registry (FASTER)') {
             steps {
-                sh '''
-                docker tag $IMAGE:latest petchimuthu1995/$IMAGE:latest
-                docker push petchimuthu1995/$IMAGE:latest
-                '''
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-creds',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh '''
+                    echo "🔐 Logging into DockerHub..."
+                    echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+
+                    echo "📦 Tagging image..."
+                    docker tag $IMAGE:latest $DOCKER_USER/$IMAGE:latest
+
+                    echo "🚀 Pushing image..."
+                    docker push $DOCKER_USER/$IMAGE:latest
+                    '''
+               }
             }
-        }
+        }    
 
         stage('Deploy on EC2 (USE GITHUB SCRIPT)') {
             steps {
