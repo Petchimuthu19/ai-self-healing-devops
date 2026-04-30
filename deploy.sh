@@ -2,7 +2,7 @@
 
 set -e
 
-IMAGE="your-dockerhub/my-app:latest"
+IMAGE="petchimuthu1995/my-app:latest"
 CONTAINER="my-app"
 LOG_FILE="/home/ec2-user/deploy.log"
 
