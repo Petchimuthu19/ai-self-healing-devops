@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         EC2_IP = "13.233.132.134"
-        KEY = "/var/lib/jenkins/Test.pem"
+        IMAGE = "my-app"
     }
 
     stages {
@@ -14,38 +14,56 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
-            steps {
-                sh 'docker build -t my-app .'
-            }
-        }
-
-        stage('Save Docker Image') {
-            steps {
-                sh 'docker save my-app > my-app.tar'
-            }
-        }
-
-        stage('Deploy on EC2') {
+        stage('Build & Tag') {
             steps {
                 sh '''
-                # Copy files to EC2
-                scp -o StrictHostKeyChecking=no -i $KEY my-app.tar ec2-user@$EC2_IP:/home/ec2-user/
-                scp -o StrictHostKeyChecking=no -i $KEY deploy.sh ec2-user@$EC2_IP:/home/ec2-user/
-
-                # Run deployment script on EC2
-                ssh -o StrictHostKeyChecking=no -i $KEY ec2-user@$EC2_IP "
-                    chmod +x deploy.sh &&
-                    ./deploy.sh
-                "
+                docker build -t $IMAGE:latest .
                 '''
             }
         }
 
-        stage('AI Analysis (Self-Healing)') {
+        stage('Push to Registry (FASTER)') {
             steps {
-                sh 'python3 ai_agent.py'
+                sh '''
+                docker tag $IMAGE:latest petchimuthu1995/$IMAGE:latest
+                docker push petchimuthu1995/$IMAGE:latest
+                '''
             }
+        }
+
+        stage('Deploy on EC2 (USE GITHUB SCRIPT)') {
+            steps {
+                sshagent(['ec2-key']) {
+                   sh '''
+                   # Copy deploy.sh from Jenkins workspace to EC2
+                   scp -o StrictHostKeyChecking=no deploy.sh ec2-user@$EC2_IP:/home/ec2-user/
+
+                   # Execute script on EC2
+                   ssh -o StrictHostKeyChecking=no ec2-user@$EC2_IP "
+                        chmod +x /home/ec2-user/deploy.sh &&
+                        /home/ec2-user/deploy.sh
+                   "
+                   '''
+                }
+            }
+        }
+
+        stage('AI Self-Healing') {
+            steps {
+                sh '''
+                python3 ai_agent.py || echo "AI handled error"
+                '''
+            }
+        }
+    }
+
+    post {
+        failure {
+            echo "Deployment failed → Running AI Fix"
+
+            sh '''
+            python3 ai_agent.py --fix
+            '''
         }
     }
 }
