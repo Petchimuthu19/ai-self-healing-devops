@@ -25,7 +25,7 @@ pipeline {
         stage('Push to Registry (FASTER)') {
             steps {
                 withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub_creds',
+                    credentialsId: 'dockerhub_cred',
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
