@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        EC2_IP = "52.66.209.208"
+        EC2_IP = "13.233.132.134"
         KEY = "/var/lib/jenkins/Test.pem"
     }
 
